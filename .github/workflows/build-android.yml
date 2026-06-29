@@ -29,13 +29,23 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
+      - name: Fix react-native-ble-advertiser SDK version
+        run: |
+          BLE_GRADLE="node_modules/react-native-ble-advertiser/android/build.gradle"
+          sed -i 's/compileSdkVersion 28/compileSdkVersion 36/g' $BLE_GRADLE
+          sed -i "s/buildToolsVersion '28.0.3'/buildToolsVersion '36.0.0'/g" $BLE_GRADLE
+          sed -i 's/targetSdkVersion 28/targetSdkVersion 36/g' $BLE_GRADLE
+          sed -i 's/minSdkVersion 16/minSdkVersion 24/g' $BLE_GRADLE
+          echo "Patched BLE advertiser build.gradle:"
+          cat $BLE_GRADLE
+
       - name: Expo Prebuild
         run: npx expo prebuild --platform android --clean
 
       - name: Make Gradlew executable
         run: chmod +x android/gradlew
 
-      - name: Build APK
+      - name: Build Debug APK
         run: |
           cd android
           ./gradlew assembleDebug --no-daemon
